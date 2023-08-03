@@ -1,66 +1,37 @@
 mod image;
+mod utils;
+mod knn_classifier;
+mod classifier;
 
-use std::{fs::File, io::{BufReader, Read}, rc::Rc};
-use crate::image::Image;
+use classifier::Classifier;
+use knn_classifier::KNNClassifier;
+use utils::load_test_images;
+
+use crate::{image::Image, utils::load_training_images};
 
 #[tokio::main]
 async fn main() {
-    let mut reader = BufReader::new(File::open("./data/mnist_train/images").unwrap());
-    let mut meta_data = vec![0; 16];
+    let images: Vec<Image> = load_training_images();
+    let test_images: Vec<Image> = load_test_images();
 
-    let mut image_count: u32 = 0;
+    let mut knn_classifier = KNNClassifier::new(1);
 
-    let mut row_size: u32 = 0;
-    let mut col_size: u32 = 0; 
+    for (i, image) in images.iter().enumerate() {
+        knn_classifier.learn(image.data.to_vec(), image.label);
+    }
 
-    let mut temp_u32 = 0;
+    let mut correct: u32 = 0;
 
-    reader.read_exact(&mut meta_data).unwrap();
-    for (i, byte) in meta_data.iter().enumerate() {
-        
-
-        if i < 4 {
-            continue;
-        }
-
-        if i >=4 && i < 8 {
-            temp_u32 += (*byte as u32)<<((3-i%4)*8);
-            if i == 7 {
-                image_count = temp_u32;
-                temp_u32 = 0;
-            }
-        }
-
-        if i >=8 && i < 12 {
-            temp_u32 += (*byte as u32)<<((3-i%4)*8);
-            if i == 11 {
-                row_size = temp_u32;
-                temp_u32 = 0;
-            }
-        }
-
-        if i >=12 && i < 16 {
-            temp_u32 += (*byte as u32)<<((3-i%4)*8);
-            if i == 15 {
-                col_size = temp_u32;
-                temp_u32 = 0;
-            }
+    for i in 0..10000 {
+        let label = knn_classifier.predict(&test_images[i].data);
+        if test_images[i].label == label {
+            correct += 1;
+            println!("Correct {} - {}", &test_images[i].label, &label);
+        } else {
+            println!("Incorrect Prediction");
         }
     }
 
-    let mut bytes: Vec<Vec<u8>> = Vec::new();
-    for i in 0..image_count {
-        bytes.push(vec![0; row_size as usize * col_size as usize]);
-        reader.read_exact(&mut bytes[i as usize]).unwrap();
-    }
-    
-    let mut images: Vec<Image> = Vec::new();
-
-    for _ in 0..image_count {
-        let image = Image::new(row_size, col_size, bytes.remove(0)); 
-        images.push(image);
-    }
-
-    println!("{}", images.len());
+    println!("Accuracy rate: {}", correct as f64 / 10000.0)
 
 }
