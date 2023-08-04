@@ -2,6 +2,7 @@ mod image;
 mod utils;
 mod knn_classifier;
 mod classifier;
+mod deep_net;
 
 use std::sync::Arc;
 
@@ -14,6 +15,8 @@ use crate::{image::Image, utils::load_training_images};
 
 #[tokio::main]
 async fn main() {
+    let deep_net = DeepNet::new();
+
     let images: Vec<Image> = load_training_images();
     let test_images: Vec<Image> = load_test_images();
 

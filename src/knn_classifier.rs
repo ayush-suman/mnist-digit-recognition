@@ -1,6 +1,5 @@
 use std::collections::HashMap;
-
-use crate::{image::Image, classifier::Classifier};
+use crate::classifier::Classifier;
 
 pub struct KNNClassifier {
     pub k: usize,
