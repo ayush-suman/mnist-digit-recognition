@@ -18,4 +18,12 @@ impl Image {
     pub fn label(&mut self, label: u8) {
         self.label = label;
     }
+
+    pub fn get_data_as_bytes(&self) -> Vec<u8> {
+        let mut v = vec![];
+        for d in &self.data {
+            v.extend(d.clone());
+        }
+        v
+    }
 }

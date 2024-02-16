@@ -1,4 +1,4 @@
-use std::{f64::consts::E, intrinsics::log10f64};
+use std::{f64::consts::E};
 
 use crate::classifier::Classifier;
 
@@ -32,7 +32,7 @@ impl ANN {
             Weights::As(node_weights) => {
                 ANN { node_counts, node_weights, learning_rate }
             }
-        } 
+        }
     }
 }
 
@@ -42,10 +42,10 @@ impl Classifier<Vec<Vec<u8>>, u8> for ANN {
     fn learn(&mut self, data: Vec<Vec<u8>>, label: u8) {
 
         let flat_data:Vec<u8> = data.into_iter().flat_map(|f| f).collect();
-        
-        let mut layer: Vec<f64> = flat_data.into_iter().map(|f| f as f64).collect(); 
+
+        let mut layer: Vec<f64> = flat_data.into_iter().map(|f| f as f64).collect();
         let mut next_layer: Vec<f64> = Vec::new();
-        
+
         for (i, layer_weights) in self.node_weights.iter().enumerate() {
             next_layer = vec![0.0; self.node_counts[i + 1]];
             for (j, weights) in layer_weights.iter().enumerate() {
@@ -65,7 +65,7 @@ impl Classifier<Vec<Vec<u8>>, u8> for ANN {
         }
         let loss = - (probability / sum).log(E);
 
-        // TODO: Calculate backward through backprop and update all weights 
+        // TODO: Calculate backward through backprop and update all weights
 
     }
 
